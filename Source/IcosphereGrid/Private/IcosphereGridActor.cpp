@@ -2,6 +2,7 @@
 
 
 #include "IcosphereGridActor.h"
+#include "TriangleNode.h"
 
 // Sets default values
 AIcosphereGridActor::AIcosphereGridActor()
