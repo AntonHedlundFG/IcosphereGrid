@@ -3,10 +3,8 @@
 
 #include "TriangleLink.h"
 
-TriangleLink::TriangleLink()
+void UTriangleLink::SetLinks(UTriangleNode* Source, UTriangleNode* Target)
 {
-}
-
-TriangleLink::~TriangleLink()
-{
+	SourceNode = Source;
+	TargetNode = Target;
 }

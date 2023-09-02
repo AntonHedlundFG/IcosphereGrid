@@ -3,30 +3,66 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TriangleLink.h"
+#include "UObject/NoExportTypes.h"
+#include "TriangleNode.generated.h"
+
+class UTriangleLink;
+
+
+USTRUCT()
+struct FMovementRestrictions
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	bool bIsWater;
+
+	UPROPERTY()
+	bool bIsMountain;
+
+	UPROPERTY()
+	bool bIsHole;
+};
 
 /**
  * 
  */
-class ICOSPHEREGRID_API TriangleNode
+UCLASS()
+class ICOSPHEREGRID_API UTriangleNode : public UObject
 {
+	GENERATED_BODY()
+
 public:
-
-	TriangleNode(FVector VertexOne, FVector VertexTwo, FVector VertexThree);
+	UFUNCTION()
+	void SetVertices(const FVector& VertexOne, const FVector& VertexTwo, const FVector& VertexThree);
 
 	UFUNCTION()
-	FVector GetCenterPosition();
+	FVector GetCenterPosition() const;
 
 	UFUNCTION()
-	TArray<FVector> GetVertices() { return Vertices; }
+	FVector GetUpDirection() const { return GetCenterPosition().GetSafeNormal(0.01f); }
 
 	UFUNCTION()
-	void AddNodeToMesh(TArray<FVector>& Vertices, TArray<FVector>& Triangles, TArray<FVector>& Normals, TArray<FColor>& Colors);
+	TArray<FVector> GetVertices() const { return TriangleVertices; }
 
-private:
+	UFUNCTION()
+	void AddNodeToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FColor>& Colors) const;
+
+	UFUNCTION()
+	void AddLink(UTriangleLink* NewLink) { Links.Add(NewLink); }
+
 	UPROPERTY()
-	TArray<FVector> Vertices;
+	FMovementRestrictions MovementRestrictions;
+
+	UFUNCTION()
+	bool IsNeighbour(UTriangleNode* OtherNode);
+
+protected:
+	UPROPERTY()
+	TArray<FVector> TriangleVertices;
 
 	UPROPERTY()
-	TArray<TriangleLink> Links;
+	TArray<UTriangleLink*> Links;
+
 };
