@@ -29,6 +29,9 @@ public:
 	UFUNCTION()
 	float GetHoleDepth() const { return HoleDepth; }
 
+	UFUNCTION()
+	float GetWaterDepth() const { return WaterDepth; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,6 +47,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float HoleDepth = 0.15f;
+
+	UPROPERTY(EditAnywhere)
+	float WaterDepth = 0.025f;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UProceduralMeshComponent> ProceduralMeshComponent;

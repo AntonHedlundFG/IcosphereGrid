@@ -117,12 +117,54 @@ void UTriangleNode::AddMountainToMesh(TArray<FVector>& Vertices, TArray<int32>& 
 
 void UTriangleNode::AddWaterToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors)
 {
+	FLinearColor WaterColor = UTriangleNode::GetColorPerType(ETileType::TT_Water);
+	//Hole floor
 	for (FVector vertex : TriangleVertices)
 	{
 		Triangles.Add(Vertices.Num());
-		Vertices.Add(vertex);
+		Vertices.Add(vertex * (1 - Grid->GetWaterDepth()));
 		Normals.Add(vertex.GetSafeNormal(0.01f));
-		Colors.Add(UTriangleNode::GetColorPerType(ETileType::TT_Water));
+		Colors.Add(WaterColor);
+	}
+
+	//Hole walls
+	for (UTriangleLink* Link : Links)
+	{
+		//No wall between water tiles
+		if (Link->GetTarget()->GetTileType() == ETileType::TT_Water)
+			continue;
+
+		TArray<FVector> SharedVertices = GetSharedVertices(Link->GetTarget());
+		TArray<FVector> LoweredVertices;
+		for (FVector SharedVertex : SharedVertices)
+		{
+			FVector LoweredVertex = SharedVertex * (1 - Grid->GetWaterDepth());
+			LoweredVertices.Add(LoweredVertex);
+		}
+		Triangles.Add(Vertices.Num());
+		Triangles.Add(Vertices.Num() + 1);
+		Triangles.Add(Vertices.Num() + 3);
+		Triangles.Add(Vertices.Num());
+		Triangles.Add(Vertices.Num() + 3);
+		Triangles.Add(Vertices.Num() + 2);
+		Vertices.Add(SharedVertices[0]);
+		Vertices.Add(SharedVertices[1]);
+		Vertices.Add(LoweredVertices[0]);
+		Vertices.Add(LoweredVertices[1]);
+		FLinearColor OtherColor = UTriangleNode::GetColorPerType(Link->GetTarget()->GetTileType());
+		Colors.Add(OtherColor);
+		Colors.Add(OtherColor);
+		Colors.Add(OtherColor);
+		Colors.Add(OtherColor);
+		FVector Normal = FVector::CrossProduct(
+			LoweredVertices[1] - SharedVertices[0],
+			SharedVertices[1] - SharedVertices[0]
+		);
+		Normal.Normalize();
+		Normals.Add(Normal);
+		Normals.Add(Normal);
+		Normals.Add(Normal);
+		Normals.Add(Normal);
 	}
 }
 
