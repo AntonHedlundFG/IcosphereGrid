@@ -3,8 +3,9 @@
 
 #include "TriangleLink.h"
 
-void UTriangleLink::SetLinks(UTriangleNode* Source, UTriangleNode* Target)
+void UTriangleLink::SetLinks(AIcosphereGridActor* ParentGrid, UTriangleNode* Source, UTriangleNode* Target)
 {
+	Grid = ParentGrid;
 	SourceNode = Source;
 	TargetNode = Target;
 }

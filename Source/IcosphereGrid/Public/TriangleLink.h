@@ -7,7 +7,7 @@
 #include "TriangleLink.generated.h"
 
 class UTriangleNode;
-
+class AIcosphereGridActor;
 
 /**
  * 
@@ -18,13 +18,16 @@ class ICOSPHEREGRID_API UTriangleLink : public UObject
 	GENERATED_BODY()
 public:
 	UFUNCTION()
-	void SetLinks(UTriangleNode* Source, UTriangleNode* Target);
+	void SetLinks(AIcosphereGridActor* ParentGrid, UTriangleNode* Source, UTriangleNode* Target);
 
 	UFUNCTION()
-	UTriangleNode* GetSource() const { return SourceNode; }
+	UTriangleNode* GetSource() { return SourceNode; }
 	
 	UFUNCTION()
-	UTriangleNode* GetTarget() const { return TargetNode; }
+	UTriangleNode* GetTarget() { return TargetNode; }
+
+	UFUNCTION()
+	AIcosphereGridActor* GetGrid() { return Grid; }
 
 protected:
 	UPROPERTY()
@@ -32,4 +35,7 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UTriangleNode> TargetNode;
+
+	UPROPERTY()
+	TObjectPtr<AIcosphereGridActor> Grid;
 };

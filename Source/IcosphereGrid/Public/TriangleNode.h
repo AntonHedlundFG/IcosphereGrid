@@ -7,22 +7,15 @@
 #include "TriangleNode.generated.h"
 
 class UTriangleLink;
+class AIcosphereGridActor;
 
-
-USTRUCT()
-struct FMovementRestrictions
+UENUM(BlueprintType)
+enum class ETileType : uint8
 {
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	bool bIsWater;
-
-	UPROPERTY()
-	bool bIsMountain;
-
-	UPROPERTY()
-	bool bIsHole;
+	TT_Grass	UMETA(DisplayName="Grass"),
+	TT_Mountain	UMETA(DisplayName="Mountain"),
+	TT_Water	UMETA(DisplayName="Water"),
+	TT_Hole		UMETA(DisplayName="Hole"),
 };
 
 /**
@@ -35,7 +28,7 @@ class ICOSPHEREGRID_API UTriangleNode : public UObject
 
 public:
 	UFUNCTION()
-	void SetVertices(const FVector& VertexOne, const FVector& VertexTwo, const FVector& VertexThree);
+	void SetVertices(AIcosphereGridActor* ParentGrid, const FVector& VertexOne, const FVector& VertexTwo, const FVector& VertexThree);
 
 	UFUNCTION()
 	FVector GetCenterPosition() const;
@@ -47,16 +40,19 @@ public:
 	TArray<FVector> GetVertices() const { return TriangleVertices; }
 
 	UFUNCTION()
-	void AddNodeToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FColor>& Colors) const;
+	void AddNodeToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors);
 
 	UFUNCTION()
 	void AddLink(UTriangleLink* NewLink) { Links.Add(NewLink); }
 
-	UPROPERTY()
-	FMovementRestrictions MovementRestrictions;
+	UFUNCTION()
+	ETileType GetTileType() const { return TileType; }
 
 	UFUNCTION()
 	bool IsNeighbour(UTriangleNode* OtherNode);
+
+	UFUNCTION()
+	AIcosphereGridActor* GetGrid() const { return Grid; }
 
 protected:
 	UPROPERTY()
@@ -64,5 +60,26 @@ protected:
 
 	UPROPERTY()
 	TArray<UTriangleLink*> Links;
+	
+	UPROPERTY()
+	ETileType TileType;
 
+	UFUNCTION()
+	void AddGrassToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors);
+	
+	UFUNCTION()
+	void AddMountainToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors);
+	
+	UFUNCTION()
+	void AddWaterToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors);
+	
+	UFUNCTION()
+	void AddHoleToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors);
+
+	//Gets vertices shared with another node, with consistent ordering.
+	UFUNCTION()
+	TArray<FVector> GetSharedVertices(UTriangleNode* OtherNode);
+
+	UPROPERTY()
+	TObjectPtr<AIcosphereGridActor> Grid;
 };

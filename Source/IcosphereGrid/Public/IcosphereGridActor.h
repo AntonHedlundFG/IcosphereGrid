@@ -9,6 +9,7 @@
 class UProceduralMeshComponent;
 class UTriangleNode;
 class UTriangleLink;
+class UMaterial;
 
 UCLASS()
 class ICOSPHEREGRID_API AIcosphereGridActor : public AActor
@@ -18,6 +19,15 @@ class ICOSPHEREGRID_API AIcosphereGridActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AIcosphereGridActor();
+
+	UFUNCTION()
+	float GetRadius() const { return SphereRadius; }
+	
+	UFUNCTION()
+	float GetMountainHeight() const { return MountainHeight; }
+	
+	UFUNCTION()
+	float GetHoleDepth() const { return HoleDepth; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -29,8 +39,17 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float SphereRadius = 1000.0f;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
+	float MountainHeight = 0.05f;
+
+	UPROPERTY(EditAnywhere)
+	float HoleDepth = 0.15f;
+
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UProceduralMeshComponent> ProceduralMeshComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterial> Material;
 
 	UPROPERTY()
 	TArray<UTriangleNode*> Nodes;

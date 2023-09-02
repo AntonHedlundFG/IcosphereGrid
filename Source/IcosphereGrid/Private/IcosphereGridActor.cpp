@@ -75,6 +75,7 @@ void AIcosphereGridActor::GenerateIcosphereMesh(int32 SubdivisionLevels, float R
 	{
 		UTriangleNode* NewNode = NewObject<UTriangleNode>(this);
 		NewNode->SetVertices(
+			this,
 			MeshVertices[MeshTriangles[i]], 
 			MeshVertices[MeshTriangles[i + 1]], 
 			MeshVertices[MeshTriangles[i + 2]]);
@@ -91,12 +92,12 @@ void AIcosphereGridActor::GenerateIcosphereMesh(int32 SubdivisionLevels, float R
 				UTriangleLink* NewLink;
 
 				NewLink = NewObject<UTriangleLink>(this);
-				NewLink->SetLinks(Nodes[i], Nodes[j]);
+				NewLink->SetLinks(this, Nodes[i], Nodes[j]);
 				Nodes[i]->AddLink(NewLink);
 				Links.Add(NewLink);
 
 				NewLink = NewObject<UTriangleLink>(this);
-				NewLink->SetLinks(Nodes[j], Nodes[i]);
+				NewLink->SetLinks(this, Nodes[j], Nodes[i]);
 				Nodes[j]->AddLink(NewLink);
 				Links.Add(NewLink);
 			}
@@ -106,7 +107,7 @@ void AIcosphereGridActor::GenerateIcosphereMesh(int32 SubdivisionLevels, float R
 	TArray<FVector> NodeVertices;
 	TArray<int32> NodeTriangles;
 	TArray<FVector> NodeNormals;
-	TArray<FColor> NodeColors;
+	TArray<FLinearColor> NodeColors;
 
 	//Add mesh information for each node
 	for (UTriangleNode* Node : Nodes)
@@ -114,7 +115,8 @@ void AIcosphereGridActor::GenerateIcosphereMesh(int32 SubdivisionLevels, float R
 		Node->AddNodeToMesh(NodeVertices, NodeTriangles, NodeNormals, NodeColors);
 	}
 
-	ProceduralMeshComponent->CreateMeshSection(0, NodeVertices, NodeTriangles, NodeNormals, TArray<FVector2D>(), NodeColors, TArray<FProcMeshTangent>(), true);
+	ProceduralMeshComponent->CreateMeshSection_LinearColor(0, NodeVertices, NodeTriangles, NodeNormals, TArray<FVector2D>(), NodeColors, TArray<FProcMeshTangent>(), true);
+	ProceduralMeshComponent->SetMaterial(0, Material);
 
 }
 
