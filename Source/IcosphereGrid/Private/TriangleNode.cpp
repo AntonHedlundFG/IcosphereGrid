@@ -125,13 +125,14 @@ void UTriangleNode::AddWaterToMesh(TArray<FVector>& Vertices, TArray<int32>& Tri
 
 void UTriangleNode::AddHoleToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors)
 {
+	FLinearColor HoleColor = UTriangleNode::GetColorPerType(ETileType::TT_Hole);
 	//Hole floor
 	for (FVector vertex : TriangleVertices)
 	{
 		Triangles.Add(Vertices.Num());
 		Vertices.Add(vertex * (1 - Grid->GetHoleDepth()));
 		Normals.Add(vertex.GetSafeNormal(0.01f));
-		Colors.Add(FLinearColor::Black);
+		Colors.Add(HoleColor);
 	}
 
 	//Hole walls
@@ -158,10 +159,11 @@ void UTriangleNode::AddHoleToMesh(TArray<FVector>& Vertices, TArray<int32>& Tria
 		Vertices.Add(SharedVertices[1]);
 		Vertices.Add(LoweredVertices[0]);
 		Vertices.Add(LoweredVertices[1]);
-		Colors.Add(FLinearColor::Black);
-		Colors.Add(FLinearColor::Black);
-		Colors.Add(FLinearColor::Black);
-		Colors.Add(FLinearColor::Black);
+		FLinearColor OtherColor = UTriangleNode::GetColorPerType(Link->GetTarget()->GetTileType());
+		Colors.Add(OtherColor);
+		Colors.Add(OtherColor);
+		Colors.Add(HoleColor);
+		Colors.Add(HoleColor);
 		FVector Normal = FVector::CrossProduct(
 			LoweredVertices[1] - SharedVertices[0],
 			SharedVertices[1] - SharedVertices[0]
@@ -171,7 +173,6 @@ void UTriangleNode::AddHoleToMesh(TArray<FVector>& Vertices, TArray<int32>& Tria
 		Normals.Add(Normal);
 		Normals.Add(Normal);
 		Normals.Add(Normal);
-
 	}
 
 }
@@ -229,4 +230,21 @@ TArray<FVector> UTriangleNode::GetSharedVertices(UTriangleNode* OtherNode)
 	}
 
 	return Results;
+}
+
+FLinearColor UTriangleNode::GetColorPerType(ETileType Type)
+{
+	switch (Type)
+	{
+	case ETileType::TT_Grass:
+		return FLinearColor::Green;
+	case ETileType::TT_Hole:
+		return FLinearColor::Black;
+	case ETileType::TT_Mountain:
+		return FLinearColor::Red;
+	case ETileType::TT_Water:
+		return FLinearColor::Blue;
+	default:
+		return FLinearColor::White;
+	}
 }

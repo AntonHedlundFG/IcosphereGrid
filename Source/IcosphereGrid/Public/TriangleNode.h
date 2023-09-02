@@ -54,6 +54,9 @@ public:
 	UFUNCTION()
 	AIcosphereGridActor* GetGrid() const { return Grid; }
 
+	UFUNCTION()
+	static FLinearColor GetColorPerType(ETileType Type);
+
 protected:
 	UPROPERTY()
 	TArray<FVector> TriangleVertices;
@@ -82,4 +85,6 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AIcosphereGridActor> Grid;
+
+	
 };
