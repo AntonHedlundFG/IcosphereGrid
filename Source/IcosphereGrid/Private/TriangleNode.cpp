@@ -68,6 +68,7 @@ void UTriangleNode::AddNodeToMesh(TArray<FVector>& Vertices, TArray<int32>& Tria
 		AddHoleToMesh(Vertices, Triangles, Normals, Colors);
 		break;
 	}
+	AddBorderToMesh(Vertices, Triangles, Normals, Colors);
 }
 
 void UTriangleNode::AddGrassToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors)
@@ -77,7 +78,7 @@ void UTriangleNode::AddGrassToMesh(TArray<FVector>& Vertices, TArray<int32>& Tri
 		Triangles.Add(Vertices.Num());
 		Vertices.Add(vertex);
 		Normals.Add(vertex.GetSafeNormal(0.01f));
-		Colors.Add(FLinearColor::Green);
+		Colors.Add(UTriangleNode::GetColorPerType(ETileType::TT_Grass));
 	}
 }
 
@@ -97,16 +98,18 @@ void UTriangleNode::AddMountainToMesh(TArray<FVector>& Vertices, TArray<int32>& 
 	Triangles.Append(NewTriangles, sizeof(NewTriangles) / sizeof(NewTriangles[0]));
 	
 	//Add the actual vertices according to numbering above.
+	
+	FLinearColor MountainColor = UTriangleNode::GetColorPerType(ETileType::TT_Mountain);
 	for (FVector vertex : TriangleVertices)
 	{
 		Vertices.Add(vertex);
 		Normals.Add(vertex.GetSafeNormal(0.01f));
-		Colors.Add(FLinearColor::Red);
+		Colors.Add(MountainColor);
 	}
 	FVector MidPoint = GetCenterPosition() + GetUpDirection() * Grid->GetRadius() * Grid->GetMountainHeight();
 	Vertices.Add(MidPoint);
 	Normals.Add(MidPoint.GetSafeNormal(0.01f));
-	Colors.Add(FLinearColor::Red);
+	Colors.Add(FMath::Lerp(MountainColor, FLinearColor::Black, 0.75f));
 
 
 
@@ -119,7 +122,7 @@ void UTriangleNode::AddWaterToMesh(TArray<FVector>& Vertices, TArray<int32>& Tri
 		Triangles.Add(Vertices.Num());
 		Vertices.Add(vertex);
 		Normals.Add(vertex.GetSafeNormal(0.01f));
-		Colors.Add(FLinearColor::Blue);
+		Colors.Add(UTriangleNode::GetColorPerType(ETileType::TT_Water));
 	}
 }
 
@@ -175,6 +178,58 @@ void UTriangleNode::AddHoleToMesh(TArray<FVector>& Vertices, TArray<int32>& Tria
 		Normals.Add(Normal);
 	}
 
+}
+
+void UTriangleNode::AddBorderToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors)
+{
+	for(UTriangleLink* Link : Links)
+	{
+		//No borders for holes
+		if (Link->GetTarget()->GetTileType() == ETileType::TT_Hole)
+			continue;
+
+		TArray<FVector> SharedVertices = GetSharedVertices(Link->GetTarget());
+
+		const float BorderWidth = 1.0f;
+
+		FVector Forward = Link->GetTarget()->GetCenterPosition() - GetCenterPosition();
+		Forward.Normalize();
+		FVector Right = SharedVertices[1] - SharedVertices[0];
+		Right.Normalize();
+		FVector Up = FVector::CrossProduct(Right, Forward);
+
+		FVector UpperLeft = SharedVertices[0] + Forward * BorderWidth;
+		FVector UpperRight = SharedVertices[1] + Forward * BorderWidth;
+		FVector LowerLeft = SharedVertices[0] - Forward * BorderWidth;
+		FVector LowerRight = SharedVertices[1] - Forward * BorderWidth;
+
+		UpperLeft *= 1.001f;
+		UpperRight *= 1.001f;
+		LowerLeft *= 1.001f;
+		LowerRight *= 1.001f;
+
+		Triangles.Add(Vertices.Num());
+		Triangles.Add(Vertices.Num() + 1);
+		Triangles.Add(Vertices.Num() + 3);
+		Triangles.Add(Vertices.Num());
+		Triangles.Add(Vertices.Num() + 3);
+		Triangles.Add(Vertices.Num() + 2);
+
+		Vertices.Add(UpperLeft);
+		Vertices.Add(UpperRight);
+		Vertices.Add(LowerLeft);
+		Vertices.Add(LowerRight);
+
+		Colors.Add(FLinearColor::Black);
+		Colors.Add(FLinearColor::Black);
+		Colors.Add(FLinearColor::Black);
+		Colors.Add(FLinearColor::Black);
+
+		Normals.Add(Up);
+		Normals.Add(Up);
+		Normals.Add(Up);
+		Normals.Add(Up);
+	}
 }
 
 bool UTriangleNode::IsNeighbour(UTriangleNode* OtherNode)

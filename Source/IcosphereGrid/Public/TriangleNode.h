@@ -79,6 +79,9 @@ protected:
 	UFUNCTION()
 	void AddHoleToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors);
 
+	UFUNCTION()
+	void AddBorderToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors);
+
 	//Gets vertices shared with another node, with consistent ordering.
 	UFUNCTION()
 	TArray<FVector> GetSharedVertices(UTriangleNode* OtherNode);
