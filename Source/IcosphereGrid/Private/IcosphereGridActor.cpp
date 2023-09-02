@@ -5,8 +5,6 @@
 #include "ProceduralMeshComponent.h"
 #include "TriangleNode.h"
 #include "TriangleLink.h"
-//TEMPORARY INCLUDE
-#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AIcosphereGridActor::AIcosphereGridActor()
@@ -103,6 +101,7 @@ void AIcosphereGridActor::GenerateIcosphereMesh(int32 SubdivisionLevels, float R
 			}
 		}
 	}
+	
 
 	TArray<FVector> NodeVertices;
 	TArray<int32> NodeTriangles;

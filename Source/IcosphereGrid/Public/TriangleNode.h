@@ -49,6 +49,9 @@ public:
 	ETileType GetTileType() const { return TileType; }
 
 	UFUNCTION()
+	void SetTileType(ETileType Type) { TileType = Type; }
+
+	UFUNCTION()
 	bool IsNeighbour(UTriangleNode* OtherNode);
 
 	UFUNCTION()

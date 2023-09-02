@@ -32,6 +32,9 @@ public:
 	UFUNCTION()
 	float GetWaterDepth() const { return WaterDepth; }
 
+	UFUNCTION()
+	TArray<UTriangleNode*> GetNodes() { return Nodes; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
