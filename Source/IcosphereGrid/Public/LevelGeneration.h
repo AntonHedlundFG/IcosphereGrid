@@ -13,6 +13,14 @@ class UTriangleNode;
 USTRUCT()
 struct FLevelGenerationSettings {
 	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+	int MaxRegionSize = 50;
+
+	UPROPERTY()
+	int MinRegionSize = 10;
 };
 
 USTRUCT()
@@ -54,20 +62,20 @@ class ICOSPHEREGRID_API ULevelGeneration : public UObject
 	
 public:
 	UFUNCTION()
-	static void GenerateLevel(AIcosphereGridActor* Grid, FLevelGenerationSettings Settings);
+	static void GenerateLevel(AIcosphereGridActor* Grid, FLevelGenerationSettings& Settings);
 
 	UFUNCTION()
-	static TArray<FLevelRegion> SortIntoRegionsByType(FLevelRegion DivideRegion);
+	static TArray<FLevelRegion> SortIntoRegionsByType(FLevelRegion DivideRegion, FLevelGenerationSettings& Settings);
 
 	UFUNCTION()
-	static FLevelRegion RemoveLargestRegion(TArray<FLevelRegion>& Regions);
+	static FLevelRegion RemoveLargestRegion(TArray<FLevelRegion>& Regions, FLevelGenerationSettings& Settings);
 
 	UFUNCTION()
-	static void MergeSmallRegionsIntoNeighbours(TArray<FLevelRegion>& Regions, int MinSize);
+	static void MergeSmallRegionsIntoNeighbours(TArray<FLevelRegion>& Regions, FLevelGenerationSettings& Settings);
 
 	UFUNCTION()
-	static TArray<FLevelRegion> InsertSubRegion(FLevelRegion Region);
+	static TArray<FLevelRegion> InsertSubRegion(FLevelRegion Region, FLevelGenerationSettings& Settings);
 
 	UFUNCTION()
-	static void MergeWaterAndHoles(AIcosphereGridActor* Grid);
+	static void MergeWaterAndHoles(AIcosphereGridActor* Grid, FLevelGenerationSettings& Settings);
 };

@@ -22,7 +22,8 @@ void AIcosphereGridActor::BeginPlay()
 {
 	Super::BeginPlay();
 	GenerateIcosphereGrid(Subdivisions, SphereRadius);
-	ULevelGeneration::GenerateLevel(this, FLevelGenerationSettings());
+	FLevelGenerationSettings Settings;
+	ULevelGeneration::GenerateLevel(this, Settings);
 	GenerateMesh();
 }
 

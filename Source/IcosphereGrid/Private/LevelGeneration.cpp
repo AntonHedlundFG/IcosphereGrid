@@ -6,7 +6,7 @@
 #include "TriangleLink.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void ULevelGeneration::GenerateLevel(AIcosphereGridActor* Grid, FLevelGenerationSettings Settings)
+void ULevelGeneration::GenerateLevel(AIcosphereGridActor* Grid, FLevelGenerationSettings& Settings)
 {
 	//Establish list of all starting regions by type.
 	//Note that World can contain many diffent types, but once Regions has been
@@ -14,44 +14,44 @@ void ULevelGeneration::GenerateLevel(AIcosphereGridActor* Grid, FLevelGeneration
 	FLevelRegion World;
 	World.Region = TSet<UTriangleNode*>(Grid->GetNodes());
 	TArray<FLevelRegion> Regions;
-	Regions.Append(SortIntoRegionsByType(World));
+	Regions.Append(SortIntoRegionsByType(World, Settings));
 
 	//Reduce region size by inserting subregions into the largest region
 	//until all regions are smaller than Grid->GetMaxRegionSize()
-	FLevelRegion LargestRegion = RemoveLargestRegion(Regions);
+	FLevelRegion LargestRegion = RemoveLargestRegion(Regions, Settings);
 	while (LargestRegion.Size() > Grid->GetMaxRegionSize())
 	{
-		TArray<FLevelRegion> SubRegions = InsertSubRegion(LargestRegion);
+		TArray<FLevelRegion> SubRegions = InsertSubRegion(LargestRegion, Settings);
 		
 		//Reset regions, in case new region borders on other region of same type.
 		Regions.Empty();
 		World.Region = TSet<UTriangleNode*>(Grid->GetNodes());
-		Regions.Append(SortIntoRegionsByType(World));
+		Regions.Append(SortIntoRegionsByType(World, Settings));
 
-		LargestRegion = RemoveLargestRegion(Regions);
+		LargestRegion = RemoveLargestRegion(Regions, Settings);
 	}
 	Regions.Add(LargestRegion);
 	
 	UKismetSystemLibrary::PrintString(Grid, FString("Initial Regions: ") + FString::FromInt(Regions.Num()), true, false, FLinearColor::White, 10.0f);
 
 	//Merge small regions into neighbouring regions
-	MergeSmallRegionsIntoNeighbours(Regions, Grid->GetMinRegionSize());
+	MergeSmallRegionsIntoNeighbours(Regions, Settings);
 	UKismetSystemLibrary::PrintString(Grid, FString("After Small Region Merge: ") + FString::FromInt(Regions.Num()), true, false, FLinearColor::White, 10.0f);
 
 	//Merge water and hole regions since they can't be neighbours
-	MergeWaterAndHoles(Grid);
+	MergeWaterAndHoles(Grid, Settings);
 	Regions.Empty();
 	World.Region = TSet<UTriangleNode*>(Grid->GetNodes());
-	Regions.Append(SortIntoRegionsByType(World));
+	Regions.Append(SortIntoRegionsByType(World, Settings));
 	UKismetSystemLibrary::PrintString(Grid, FString("After WaterHole Merge: ") + FString::FromInt(Regions.Num()), true, false, FLinearColor::White, 10.0f);
 
 }
 
-void ULevelGeneration::MergeSmallRegionsIntoNeighbours(TArray<FLevelRegion>& Regions, int MinSize)
+void ULevelGeneration::MergeSmallRegionsIntoNeighbours(TArray<FLevelRegion>& Regions, FLevelGenerationSettings& Settings)
 {
 	for (int i = Regions.Num() - 1; i >= 0; i--)
 	{
-		if (Regions[i].Size() >= MinSize) continue;
+		if (Regions[i].Size() >= Settings.MinRegionSize) continue;
 
 		UTriangleNode* AnyNeighbour = nullptr;
 		for (UTriangleNode* Node : Regions[i].Region)
@@ -85,7 +85,7 @@ void ULevelGeneration::MergeSmallRegionsIntoNeighbours(TArray<FLevelRegion>& Reg
 	}
 }
 
-TArray<FLevelRegion> ULevelGeneration::SortIntoRegionsByType(FLevelRegion DivideRegion)
+TArray<FLevelRegion> ULevelGeneration::SortIntoRegionsByType(FLevelRegion DivideRegion, FLevelGenerationSettings& Settings)
 {
 	TSet<UTriangleNode*> StartRegion = DivideRegion.Region;
 
@@ -119,7 +119,7 @@ TArray<FLevelRegion> ULevelGeneration::SortIntoRegionsByType(FLevelRegion Divide
 	return ReturnArray;
 }
 
-void ULevelGeneration::MergeWaterAndHoles(AIcosphereGridActor* Grid)
+void ULevelGeneration::MergeWaterAndHoles(AIcosphereGridActor* Grid, FLevelGenerationSettings& Settings)
 {
 	for (UTriangleNode* Node : Grid->GetNodes())
 	{
@@ -148,7 +148,7 @@ void ULevelGeneration::MergeWaterAndHoles(AIcosphereGridActor* Grid)
 	}
 }
 
-FLevelRegion ULevelGeneration::RemoveLargestRegion(TArray<FLevelRegion>& Regions)
+FLevelRegion ULevelGeneration::RemoveLargestRegion(TArray<FLevelRegion>& Regions, FLevelGenerationSettings& Settings)
 {
 	FLevelRegion LargestRegion;
 	for (FLevelRegion Region : Regions)
@@ -162,7 +162,7 @@ FLevelRegion ULevelGeneration::RemoveLargestRegion(TArray<FLevelRegion>& Regions
 	return LargestRegion;
 }
 
-TArray<FLevelRegion> ULevelGeneration::InsertSubRegion(FLevelRegion Region)
+TArray<FLevelRegion> ULevelGeneration::InsertSubRegion(FLevelRegion Region, FLevelGenerationSettings& Settings)
 {
 	int NewRegionSize = FMath::RandRange(Region.Size() / 4, Region.Size() / 2);
 	ETileType NewRegionType;
@@ -197,5 +197,5 @@ TArray<FLevelRegion> ULevelGeneration::InsertSubRegion(FLevelRegion Region)
 	}
 
 
-	return SortIntoRegionsByType(Region);
+	return SortIntoRegionsByType(Region, Settings);
 }

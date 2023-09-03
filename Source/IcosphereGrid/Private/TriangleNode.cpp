@@ -11,32 +11,7 @@ void UTriangleNode::SetVertices(AIcosphereGridActor* ParentGrid, const FVector& 
 	TriangleVertices.Add(VertexOne);
 	TriangleVertices.Add(VertexTwo);
 	TriangleVertices.Add(VertexThree);
-
-
-	//TEMPORARY FOR TESTING
-	/*
-	if (VertexOne.X > 0)
-	{
-		if (VertexOne.Y > 0)
-		{
-			TileType = ETileType::TT_Grass;
-		}
-		else 
-		{
-			TileType = ETileType::TT_Mountain;
-		}
-	}
-	else
-	{
-		if (VertexOne.Y > 0)
-		{
-			TileType = ETileType::TT_Water;
-		}
-		else
-		{
-			TileType = ETileType::TT_Hole;
-		}
-	}*/
+	TileType = ETileType::TT_Hole;
 }
 
 FVector UTriangleNode::GetCenterPosition() const
