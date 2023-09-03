@@ -21,9 +21,9 @@ AIcosphereGridActor::AIcosphereGridActor()
 void AIcosphereGridActor::BeginPlay()
 {
 	Super::BeginPlay();
-	ProceduralMeshComponent->ClearAllMeshSections();
-	GenerateIcosphereMesh(Subdivisions, SphereRadius);
+	GenerateIcosphereGrid(Subdivisions, SphereRadius);
 	ULevelGeneration::GenerateLevel(this, FLevelGenerationSettings());
+	GenerateMesh();
 }
 
 // Called every frame
@@ -33,7 +33,26 @@ void AIcosphereGridActor::Tick(float DeltaTime)
 
 }
 
-void AIcosphereGridActor::GenerateIcosphereMesh(int32 SubdivisionLevels, float Radius)
+void AIcosphereGridActor::GenerateMesh()
+{
+	ProceduralMeshComponent->ClearAllMeshSections();
+
+	TArray<FVector> NodeVertices;
+	TArray<int32> NodeTriangles;
+	TArray<FVector> NodeNormals;
+	TArray<FLinearColor> NodeColors;
+
+	//Add mesh information for each node
+	for (UTriangleNode* Node : Nodes)
+	{
+		Node->AddNodeToMesh(NodeVertices, NodeTriangles, NodeNormals, NodeColors);
+	}
+
+	ProceduralMeshComponent->CreateMeshSection_LinearColor(0, NodeVertices, NodeTriangles, NodeNormals, TArray<FVector2D>(), NodeColors, TArray<FProcMeshTangent>(), true);
+	ProceduralMeshComponent->SetMaterial(0, Material);
+}
+
+void AIcosphereGridActor::GenerateIcosphereGrid(int32 SubdivisionLevels, float Radius)
 {
 	const float Phi = 1.618033f; //Golden Ratio
 
@@ -105,19 +124,6 @@ void AIcosphereGridActor::GenerateIcosphereMesh(int32 SubdivisionLevels, float R
 	}
 	
 
-	TArray<FVector> NodeVertices;
-	TArray<int32> NodeTriangles;
-	TArray<FVector> NodeNormals;
-	TArray<FLinearColor> NodeColors;
-
-	//Add mesh information for each node
-	for (UTriangleNode* Node : Nodes)
-	{
-		Node->AddNodeToMesh(NodeVertices, NodeTriangles, NodeNormals, NodeColors);
-	}
-
-	ProceduralMeshComponent->CreateMeshSection_LinearColor(0, NodeVertices, NodeTriangles, NodeNormals, TArray<FVector2D>(), NodeColors, TArray<FProcMeshTangent>(), true);
-	ProceduralMeshComponent->SetMaterial(0, Material);
 
 }
 

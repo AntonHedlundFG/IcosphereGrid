@@ -73,7 +73,10 @@ protected:
 	TArray<UTriangleLink*> Links;
 
 	UFUNCTION()
-	void GenerateIcosphereMesh(int32 SubdivisionLevels, float Radius);
+	void GenerateIcosphereGrid(int32 SubdivisionLevels, float Radius);
+
+	UFUNCTION()
+	void GenerateMesh();
 
 	//Divides each triangle into four in a tri-force pattern.
 	UFUNCTION()

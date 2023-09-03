@@ -23,6 +23,7 @@ public:
 	UPROPERTY()
 	TSet<UTriangleNode*> Region;
 
+	int Size() { return Region.Num(); }
 	ETileType GetTileType() 
 	{ 
 		if (Region.Num() == 0) return ETileType::TT_Grass;
@@ -53,5 +54,11 @@ public:
 	static TArray<FLevelRegion> SortIntoRegionsByType(FLevelRegion DivideRegion);
 
 	UFUNCTION()
-	static FLevelRegion RemoveLargestRegion(TArray<FLevelRegion> Regions);
+	static FLevelRegion RemoveLargestRegion(TArray<FLevelRegion>& Regions);
+
+	UFUNCTION()
+	static TArray<FLevelRegion> InsertSubRegion(FLevelRegion Region);
+
+	UFUNCTION()
+	static void MergeWaterAndHoles(AIcosphereGridActor* Grid);
 };

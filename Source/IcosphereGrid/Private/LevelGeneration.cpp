@@ -15,6 +15,26 @@ void ULevelGeneration::GenerateLevel(AIcosphereGridActor* Grid, FLevelGeneration
 	World.Region = TSet<UTriangleNode*>(Grid->GetNodes());
 	TArray<FLevelRegion> Regions;
 	Regions.Append(SortIntoRegionsByType(World));
+
+	//Reduce region size by inserting subregions into the largest region
+	//until all regions are smaller than Grid->GetMaxRegionSize()
+	FLevelRegion LargestRegion = RemoveLargestRegion(Regions);
+	while (LargestRegion.Size() > Grid->GetMaxRegionSize())
+	{
+		TArray<FLevelRegion> SubRegions = InsertSubRegion(LargestRegion);
+		
+		//Reset regions, in case new region borders on other region of same type.
+		Regions.Empty();
+		World.Region = TSet<UTriangleNode*>(Grid->GetNodes());
+		Regions.Append(SortIntoRegionsByType(World));
+
+		LargestRegion = RemoveLargestRegion(Regions);
+	}
+	Regions.Add(LargestRegion);
+	
+	//Merge water and hole regions since they can't be neighbours
+	MergeWaterAndHoles(Grid);
+
 }
 
 TArray<FLevelRegion> ULevelGeneration::SortIntoRegionsByType(FLevelRegion DivideRegion)
@@ -51,19 +71,96 @@ TArray<FLevelRegion> ULevelGeneration::SortIntoRegionsByType(FLevelRegion Divide
 	return ReturnArray;
 }
 
-
-FLevelRegion ULevelGeneration::RemoveLargestRegion(TArray<FLevelRegion> Regions)
+void ULevelGeneration::MergeWaterAndHoles(AIcosphereGridActor* Grid)
 {
-	int LargestSize = -1;
+	for (UTriangleNode* Node : Grid->GetNodes())
+	{
+		if (Node->GetTileType() == ETileType::TT_Water)
+		{
+			TQueue<UTriangleNode*> OpenSet;
+			OpenSet.Enqueue(Node);
+			UTriangleNode* Current;
+			while (OpenSet.Dequeue(Current))
+			{
+				for (UTriangleLink* Link : Current->GetLinks())
+				{
+					if (Link->GetTarget()->GetTileType() == ETileType::TT_Hole)
+					{
+						OpenSet.Enqueue(Link->GetTarget());
+						Link->GetTarget()->SetTileType(ETileType::TT_Water);
+					}
+				}
+			}
+		}
+
+		if (Node->GetTileType() == ETileType::TT_Hole)
+		{
+			TQueue<UTriangleNode*> OpenSet;
+			OpenSet.Enqueue(Node);
+			UTriangleNode* Current;
+			while (OpenSet.Dequeue(Current))
+			{
+				for (UTriangleLink* Link : Current->GetLinks())
+				{
+					if (Link->GetTarget()->GetTileType() == ETileType::TT_Water)
+					{
+						OpenSet.Enqueue(Link->GetTarget());
+						Link->GetTarget()->SetTileType(ETileType::TT_Hole);
+					}
+				}
+			}
+		}
+	}
+}
+
+FLevelRegion ULevelGeneration::RemoveLargestRegion(TArray<FLevelRegion>& Regions)
+{
 	FLevelRegion LargestRegion;
 	for (FLevelRegion Region : Regions)
 	{
-		if (Region.Region.Num() > LargestSize)
+		if (Region.Size() > LargestRegion.Size())
 		{
 			LargestRegion = Region;
-			LargestSize = Region.Region.Num();
 		}
 	}
 	Regions.Remove(LargestRegion);
 	return LargestRegion;
+}
+
+TArray<FLevelRegion> ULevelGeneration::InsertSubRegion(FLevelRegion Region)
+{
+	int NewRegionSize = FMath::RandRange(Region.Size() / 4, Region.Size() / 2);
+	ETileType NewRegionType;
+	do {
+		NewRegionType = (ETileType)(FMath::RandRange(0, (int)(ETileType::TT_MAX) - 1));
+	} while (NewRegionType == Region.GetTileType());
+	TArray<UTriangleNode*> OpenSet;
+	TSet<UTriangleNode*> ClosedSet;
+	UTriangleNode* RandomStartNode = Region.Region.Array()[FMath::RandRange(0, Region.Region.Array().Num() - 1)];
+	OpenSet.Add(RandomStartNode);
+	while (!OpenSet.IsEmpty() && ClosedSet.Num() < NewRegionSize)
+	{
+		UTriangleNode* Current = OpenSet[FMath::RandRange(0, OpenSet.Num() - 1)];
+		OpenSet.Remove(Current);
+		ClosedSet.Add(Current);
+
+		for (UTriangleLink* Link : Current->GetLinks())
+		{
+			UTriangleNode* Target = Link->GetTarget();
+			if (Region.Region.Contains(Target) &&
+				!OpenSet.Contains(Target) &&
+				!ClosedSet.Contains(Target))
+			{
+				OpenSet.Add(Target);
+			}
+		}
+	}
+	
+	for (UTriangleNode* Node : ClosedSet)
+	{
+		Node->SetTileType(NewRegionType);
+	}
+
+
+	return SortIntoRegionsByType(Region);
 }

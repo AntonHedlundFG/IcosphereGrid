@@ -16,6 +16,7 @@ enum class ETileType : uint8
 	TT_Mountain	UMETA(DisplayName="Mountain"),
 	TT_Water	UMETA(DisplayName="Water"),
 	TT_Hole		UMETA(DisplayName="Hole"),
+	TT_MAX		UMETA(DisplayNam="MaxValue")
 };
 
 /**
