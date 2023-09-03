@@ -5,6 +5,7 @@
 #include "ProceduralMeshComponent.h"
 #include "TriangleNode.h"
 #include "TriangleLink.h"
+#include "LevelGeneration.h"
 
 // Sets default values
 AIcosphereGridActor::AIcosphereGridActor()
@@ -22,6 +23,7 @@ void AIcosphereGridActor::BeginPlay()
 	Super::BeginPlay();
 	ProceduralMeshComponent->ClearAllMeshSections();
 	GenerateIcosphereMesh(Subdivisions, SphereRadius);
+	ULevelGeneration::GenerateLevel(this, FLevelGenerationSettings());
 }
 
 // Called every frame

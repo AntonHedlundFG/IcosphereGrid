@@ -14,6 +14,7 @@ void UTriangleNode::SetVertices(AIcosphereGridActor* ParentGrid, const FVector& 
 
 
 	//TEMPORARY FOR TESTING
+	/*
 	if (VertexOne.X > 0)
 	{
 		if (VertexOne.Y > 0)
@@ -35,7 +36,7 @@ void UTriangleNode::SetVertices(AIcosphereGridActor* ParentGrid, const FVector& 
 		{
 			TileType = ETileType::TT_Hole;
 		}
-	}
+	}*/
 }
 
 FVector UTriangleNode::GetCenterPosition() const
@@ -334,7 +335,7 @@ FLinearColor UTriangleNode::GetColorPerType(ETileType Type)
 	switch (Type)
 	{
 	case ETileType::TT_Grass:
-		return FLinearColor::Green;
+		return FLinearColor::Gray;
 	case ETileType::TT_Hole:
 		return FLinearColor::Black;
 	case ETileType::TT_Mountain:

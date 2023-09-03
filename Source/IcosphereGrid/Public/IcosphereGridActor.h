@@ -33,6 +33,9 @@ public:
 	float GetWaterDepth() const { return WaterDepth; }
 
 	UFUNCTION()
+	int GetMaxRegionSize() const { return MaxRegionSize; }
+
+	UFUNCTION()
 	TArray<UTriangleNode*> GetNodes() { return Nodes; }
 
 protected:
@@ -53,6 +56,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float WaterDepth = 0.025f;
+
+	UPROPERTY(EditAnywhere)
+	int MaxRegionSize = 25;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UProceduralMeshComponent> ProceduralMeshComponent;

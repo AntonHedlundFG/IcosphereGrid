@@ -4,14 +4,38 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "TriangleNode.h"
 #include "LevelGeneration.generated.h"
+
+class AIcosphereGridActor;
+class UTriangleNode;
 
 USTRUCT()
 struct FLevelGenerationSettings {
 	GENERATED_BODY()
 };
 
-class AIcosphereGridActor;
+USTRUCT()
+struct FLevelRegion {
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TSet<UTriangleNode*> Region;
+
+	ETileType GetTileType() 
+	{ 
+		if (Region.Num() == 0) return ETileType::TT_Grass;
+		return Region.Array()[0]->GetTileType(); 
+	}
+
+	bool operator==(const FLevelRegion& other) const
+	{
+		return (Region.Difference(other.Region).Num() == 0 &&
+			other.Region.Difference(Region).Num() == 0);
+	}
+};
+
 
 /**
  * 
@@ -25,4 +49,9 @@ public:
 	UFUNCTION()
 	static void GenerateLevel(AIcosphereGridActor* Grid, FLevelGenerationSettings Settings);
 
+	UFUNCTION()
+	static TArray<FLevelRegion> SortIntoRegionsByType(FLevelRegion DivideRegion);
+
+	UFUNCTION()
+	static FLevelRegion RemoveLargestRegion(TArray<FLevelRegion> Regions);
 };

@@ -46,6 +46,9 @@ public:
 	void AddLink(UTriangleLink* NewLink) { Links.Add(NewLink); }
 
 	UFUNCTION()
+	TArray<UTriangleLink*> GetLinks() { return Links; }
+
+	UFUNCTION()
 	ETileType GetTileType() const { return TileType; }
 
 	UFUNCTION()
