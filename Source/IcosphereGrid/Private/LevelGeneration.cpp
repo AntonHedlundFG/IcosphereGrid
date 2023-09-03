@@ -75,38 +75,25 @@ void ULevelGeneration::MergeWaterAndHoles(AIcosphereGridActor* Grid)
 {
 	for (UTriangleNode* Node : Grid->GetNodes())
 	{
-		if (Node->GetTileType() == ETileType::TT_Water)
-		{
-			TQueue<UTriangleNode*> OpenSet;
-			OpenSet.Enqueue(Node);
-			UTriangleNode* Current;
-			while (OpenSet.Dequeue(Current))
-			{
-				for (UTriangleLink* Link : Current->GetLinks())
-				{
-					if (Link->GetTarget()->GetTileType() == ETileType::TT_Hole)
-					{
-						OpenSet.Enqueue(Link->GetTarget());
-						Link->GetTarget()->SetTileType(ETileType::TT_Water);
-					}
-				}
-			}
-		}
+		ETileType ThisType = Node->GetTileType();
+		ETileType OtherType;
+		if (ThisType == ETileType::TT_Water)
+			OtherType = ETileType::TT_Hole;
+		else if (ThisType == ETileType::TT_Hole)
+			OtherType = ETileType::TT_Water;
+		else continue;
 
-		if (Node->GetTileType() == ETileType::TT_Hole)
+		TQueue<UTriangleNode*> OpenSet;
+		OpenSet.Enqueue(Node);
+		UTriangleNode* Current;
+		while (OpenSet.Dequeue(Current))
 		{
-			TQueue<UTriangleNode*> OpenSet;
-			OpenSet.Enqueue(Node);
-			UTriangleNode* Current;
-			while (OpenSet.Dequeue(Current))
+			for (UTriangleLink* Link : Current->GetLinks())
 			{
-				for (UTriangleLink* Link : Current->GetLinks())
+				if (Link->GetTarget()->GetTileType() == OtherType)
 				{
-					if (Link->GetTarget()->GetTileType() == ETileType::TT_Water)
-					{
-						OpenSet.Enqueue(Link->GetTarget());
-						Link->GetTarget()->SetTileType(ETileType::TT_Hole);
-					}
+					OpenSet.Enqueue(Link->GetTarget());
+					Link->GetTarget()->SetTileType(ThisType);
 				}
 			}
 		}
