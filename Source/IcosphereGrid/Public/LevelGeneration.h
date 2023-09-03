@@ -35,6 +35,12 @@ public:
 		return (Region.Difference(other.Region).Num() == 0 &&
 			other.Region.Difference(Region).Num() == 0);
 	}
+
+	bool operator!=(const FLevelRegion& other) const
+	{
+		return (Region.Difference(other.Region).Num() != 0 ||
+			other.Region.Difference(Region).Num() != 0);
+	}
 };
 
 
@@ -55,6 +61,9 @@ public:
 
 	UFUNCTION()
 	static FLevelRegion RemoveLargestRegion(TArray<FLevelRegion>& Regions);
+
+	UFUNCTION()
+	static void MergeSmallRegionsIntoNeighbours(TArray<FLevelRegion>& Regions, int MinSize);
 
 	UFUNCTION()
 	static TArray<FLevelRegion> InsertSubRegion(FLevelRegion Region);

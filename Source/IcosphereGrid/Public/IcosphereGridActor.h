@@ -36,6 +36,9 @@ public:
 	int GetMaxRegionSize() const { return MaxRegionSize; }
 
 	UFUNCTION()
+	int GetMinRegionSize() const { return MinRegionSize; }
+
+	UFUNCTION()
 	TArray<UTriangleNode*> GetNodes() { return Nodes; }
 
 protected:
@@ -59,6 +62,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	int MaxRegionSize = 25;
+
+	UPROPERTY(EditAnywhere)
+	int MinRegionSize = 4;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UProceduralMeshComponent> ProceduralMeshComponent;

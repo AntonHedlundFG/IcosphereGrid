@@ -32,9 +32,57 @@ void ULevelGeneration::GenerateLevel(AIcosphereGridActor* Grid, FLevelGeneration
 	}
 	Regions.Add(LargestRegion);
 	
+	UKismetSystemLibrary::PrintString(Grid, FString("Initial Regions: ") + FString::FromInt(Regions.Num()), true, false, FLinearColor::White, 10.0f);
+
+	//Merge small regions into neighbouring regions
+	MergeSmallRegionsIntoNeighbours(Regions, Grid->GetMinRegionSize());
+	UKismetSystemLibrary::PrintString(Grid, FString("After Small Region Merge: ") + FString::FromInt(Regions.Num()), true, false, FLinearColor::White, 10.0f);
+
 	//Merge water and hole regions since they can't be neighbours
 	MergeWaterAndHoles(Grid);
+	Regions.Empty();
+	World.Region = TSet<UTriangleNode*>(Grid->GetNodes());
+	Regions.Append(SortIntoRegionsByType(World));
+	UKismetSystemLibrary::PrintString(Grid, FString("After WaterHole Merge: ") + FString::FromInt(Regions.Num()), true, false, FLinearColor::White, 10.0f);
 
+}
+
+void ULevelGeneration::MergeSmallRegionsIntoNeighbours(TArray<FLevelRegion>& Regions, int MinSize)
+{
+	for (int i = Regions.Num() - 1; i >= 0; i--)
+	{
+		if (Regions[i].Size() >= MinSize) continue;
+
+		UTriangleNode* AnyNeighbour = nullptr;
+		for (UTriangleNode* Node : Regions[i].Region)
+		{
+			for (UTriangleLink* Link : Node->GetLinks())
+			{
+				if (Regions[i].GetTileType() == Link->GetTarget()->GetTileType()) continue;
+
+				AnyNeighbour = Link->GetTarget();
+				break;
+			}
+			if (AnyNeighbour != nullptr) break;
+		}
+		if (AnyNeighbour == nullptr) return;
+
+		for (FLevelRegion Region : Regions)
+		{
+			if (Regions[i] != Region && Region.Region.Contains(AnyNeighbour))
+			{
+				for (UTriangleNode* Node : Regions[i].Region)
+				{
+					Regions[i].Region.Remove(Node);
+					Region.Region.Add(Node);
+					Node->SetTileType(AnyNeighbour->GetTileType());
+				}
+				Regions.RemoveAt(i);
+				break;
+			}
+		}
+
+	}
 }
 
 TArray<FLevelRegion> ULevelGeneration::SortIntoRegionsByType(FLevelRegion DivideRegion)
