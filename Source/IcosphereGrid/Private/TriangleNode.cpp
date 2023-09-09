@@ -321,3 +321,11 @@ FLinearColor UTriangleNode::GetColorPerType(ETileType Type)
 		return FLinearColor::White;
 	}
 }
+
+bool UTriangleNode::TrySetUnit(AActor* NewUnit)
+{
+	if (IsValid(Unit)) return false;
+
+	Unit = NewUnit;
+	return true;
+}

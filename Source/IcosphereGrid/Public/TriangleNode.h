@@ -64,6 +64,15 @@ public:
 	UFUNCTION()
 	static FLinearColor GetColorPerType(ETileType Type);
 
+	UFUNCTION()
+	AActor* GetUnit() { return Unit; }
+
+	UFUNCTION()
+	bool TrySetUnit(AActor* NewUnit);
+
+	UFUNCTION()
+	bool IsOccupied() { return IsValid(Unit); }
+
 protected:
 	UPROPERTY()
 	TArray<FVector> TriangleVertices;
@@ -95,6 +104,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AIcosphereGridActor> Grid;
+
+	UPROPERTY()
+	TObjectPtr<AActor> Unit;
 
 	
 };
