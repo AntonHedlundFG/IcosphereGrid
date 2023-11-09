@@ -55,18 +55,18 @@ protected:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Exercise Two")
 	void ExerciseTwoTest();
 
+	/**We call this from Tick so we can separate different exercises' tick functions.
+	*/
 	UFUNCTION()
 	void ExerciseTwoTick(float DeltaTime);
 
-	UFUNCTION()
-	FVector SlerpLocationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha);
-
-	UFUNCTION()
-	FRotator SlerpRotationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha);
-
+	/**The time it takes to move across the trajectory
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Two")
 	float MoveDuration = 5.0f;
 
+	/** A short delay before the movement starts so we can find the trajectory in editor
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Two")
 	float StartDelay = 3.0f;
 
@@ -76,11 +76,10 @@ protected:
 	UPROPERTY()
 	bool bIsActive = false;
 
+	//We store these two locations here since we assign them once and then
+	//need to access them in ExerciseTwoTick()
 	UPROPERTY() FVector LocationStart;
 	UPROPERTY() FVector LocationStop;
-	UPROPERTY() FVector UpStart;
-	UPROPERTY() FVector UpStop;
-	UPROPERTY() FVector RightDirection;
 
 #pragma endregion
 

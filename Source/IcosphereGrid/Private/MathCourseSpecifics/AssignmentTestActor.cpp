@@ -6,6 +6,7 @@
 #include "IcosphereGridActor.h"
 #include "TriangleNode.h"
 #include "TriangleLink.h"
+#include "SphericalMathHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -71,6 +72,7 @@ void AAssignmentTestActor::ExerciseTwoTest()
 		StopIndex = FMath::RandRange(0, AllNodes.Num() - 1);
 	} while (StopIndex == StartIndex && AllNodes.Num() >= 2);
 
+	//Generate start & stop location located slightly above the globe's surface.
 	LocationStart = AllNodes[StartIndex]->GetCenterPosition();
 	LocationStart *= 1.1f;
 	LocationStart += Grid->GetActorLocation();
@@ -78,18 +80,17 @@ void AAssignmentTestActor::ExerciseTwoTest()
 	LocationStop *= 1.1f;
 	LocationStop += Grid->GetActorLocation();
 
-	UpStart = AllNodes[StartIndex]->GetUpDirection();
-	UpStop = AllNodes[StopIndex]->GetUpDirection();
-
-	//After this, we can determine the forward vector
-	//by taking the cross product of the lerped Up vector and the RightVector
-	RightDirection = (LocationStop - LocationStart).Cross(UpStart);
-
+	//Set to active so ExerciseTwoTick starts running, with a small delay
 	CurrentMoveTime = -StartDelay;
 	bIsActive = true;
 
-	UKismetSystemLibrary::DrawDebugSphere(this, LocationStart, 50.0f, 12, FLinearColor::Blue, 30.0f);
-	UKismetSystemLibrary::DrawDebugSphere(this, LocationStop, 50.0f, 12, FLinearColor::Red, 30.0f);
+	//Debug-Draw the trajectory
+	for (float f = 0.0f; f < 100.0f; f += 1.0f)
+	{
+		FVector LineStart = USphericalMathHelpers::SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, f / 100.0f);
+		FVector LineEnd = USphericalMathHelpers::SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, (f + 1.0f) / 100.0f);
+		UKismetSystemLibrary::DrawDebugLine(this, LineStart, LineEnd, FLinearColor::Black, StartDelay + MoveDuration);;
+	}
 
 }
 
@@ -99,57 +100,25 @@ void AAssignmentTestActor::ExerciseTwoTick(float DeltaTime)
 
 	CurrentMoveTime += DeltaTime;
 	
+	//We're still in the start delay
 	if (CurrentMoveTime < 0.0f) return;
 
+	//End activity if we've completed the move
 	if (CurrentMoveTime >= MoveDuration)
 	{
 		bIsActive = false;
 		CurrentMoveTime = MoveDuration;
 	}
 
+	//Use the helper functions to actually set the units position & rotation.
 	const float Alpha = CurrentMoveTime / MoveDuration;
 	MovableUnit->SetActorLocation(
-		SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, Alpha)
+		USphericalMathHelpers::SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, Alpha)
 	);
 	MovableUnit->SetActorRotation(
-		SlerpRotationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, Alpha)
+		USphericalMathHelpers::SlerpRotationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, Alpha)
 	);
 
-	//Debug-Drawing the whole trajectory
-
-	for (float f = 0.0f; f < 100.0f; f += 1.0f)
-	{
-		FVector LineStart = SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, f / 100.0f);
-		FVector LineEnd = SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, (f + 1.0f) / 100.0f);
-		UKismetSystemLibrary::DrawDebugLine(this, LineStart, LineEnd, FLinearColor::Black);
-	}
-
 }
 
-FVector AAssignmentTestActor::SlerpLocationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha)
-{
-	FVector StartDelta = Start - Point;
-	FVector EndDelta = End - Point;
-	float Length = FMath::Lerp(StartDelta.Length(), EndDelta.Length(), Alpha);
-	FVector NewNormalDelta = Alpha * StartDelta + (1.0f - Alpha) * EndDelta;
-	NewNormalDelta.Normalize();
-	FVector SlerpedLocation = NewNormalDelta * Length + Point;
-	return SlerpedLocation;
-}
 
-FRotator AAssignmentTestActor::SlerpRotationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha)
-{
-	FVector StartDelta = Start - Point;
-	FVector EndDelta = End - Point;
-
-	FVector Forward, Right, Up;
-
-	FVector CurrentLocation = SlerpLocationAroundPoint(Point, Start, End, Alpha);
-	FVector CurrentDelta = CurrentLocation - Point;
-	Up = CurrentDelta.GetSafeNormal();
-	
-	Right = (EndDelta - StartDelta).GetSafeNormal().Cross(Up).GetSafeNormal();
-	Forward = Right.Cross(Up).GetSafeNormal();
-
-	return UKismetMathLibrary::MakeRotationFromAxes(Forward, Right, Up);
-}
