@@ -40,16 +40,13 @@ bool USphericalMathHelpers::GetRaySphereIntersect(FVector RayStart, FVector RayD
     float ClosestPointRayDistance = RayStartToSphere.Dot(RayDirection);
 
     // Ray starts outside sphere and points away from sphere 
-    if (RayStartToSphere.Dot(RayDirection) < 0.0f && RayStartToSphere.Length() > SphereRadius) return false;
+    if (ClosestPointRayDistance < 0.0f && RayStartToSphere.Length() > SphereRadius) return false;
 
     // Calculate the distance from the point on the ray closest to the spheres center
     float ClosestPointSphereDistance = FMath::Sqrt(RayStartToSphere.Length() * RayStartToSphere.Length() - ClosestPointRayDistance * ClosestPointRayDistance);
 
-    // If the closest approach is greater than the sphere's radius, there is no intersection
-    if (ClosestPointSphereDistance > SphereRadius)
-    {
-        return false;
-    }
+    // If the closest point on the ray is greater than the sphere's radius, there is no intersection
+	if (ClosestPointSphereDistance > SphereRadius) return false;
 
     // Calculate the intersection point
     float IntersectionDistance = ClosestPointRayDistance - FMath::Sqrt(SphereRadius * SphereRadius - ClosestPointSphereDistance * ClosestPointSphereDistance);
