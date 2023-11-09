@@ -34,5 +34,5 @@ enum class ETriangleNodeRelations
 
 The region checks uses a simple floodfill algorithm. 
 
-The most interesting part of this work was to check whether a node was to the west or east of another node. It's complicated, since west/east is different depending on where you are. My solution uses the cross product of the tiles normal vector and the global up vector, and the dot product of the cross product and the nodes' position delta [See it here](/Source/IcosphereGrid/Private/TriangleNodeRelations.cpp#L20C1-L38C2)
+The most interesting part of this work was to check whether a node was to the west or east of another node. It's complicated, since west/east is different depending on where you are. My solution uses the cross product of the tiles normal vector and the global up vector, and the dot product of the cross product and the nodes' position delta. [See it here](/Source/IcosphereGrid/Private/TriangleNodeRelations.cpp#L20C1-L38C2)
 
