@@ -14,12 +14,14 @@ class ICOSPHEREGRID_API AAssignmentTestActor : public AActor
 {
 	GENERATED_BODY()
 
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "All Exercises")
+	TObjectPtr<AIcosphereGridActor> Grid;
 
 #pragma region Exercise One
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise One")
-	TObjectPtr<AIcosphereGridActor> Grid;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise One")
 	TArray<ETileType> TravelableTileTypes;
@@ -42,6 +44,43 @@ protected:
 
 #pragma region Exercise Two
 
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Two")
+	TObjectPtr<AActor> MovableUnit;
+
+	/** I use this method to do tests in runtime, as the grid is generated
+	*	upon game launch and not accessible in non-play editor mode.
+	*/
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Exercise Two")
+	void ExerciseTwoTest();
+
+	UFUNCTION()
+	void ExerciseTwoTick(float DeltaTime);
+
+	UFUNCTION()
+	FVector SlerpLocationAroundPoint(FVector Point, FVector DeltaStart, FVector DeltaEnd, float Alpha);
+
+	UFUNCTION()
+	FRotator SlerpRotationAroundPoint(FVector Point, FVector DeltaStart, FVector DeltaEnd, float Alpha);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Two")
+	float MoveDuration = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Two")
+	float StartDelay = 3.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Exercuse Two")
+	float CurrentMoveTime = 0.0f;
+
+	UPROPERTY()
+	bool bIsActive = false;
+
+	UPROPERTY() FVector LocationStart;
+	UPROPERTY() FVector LocationStop;
+	UPROPERTY() FVector UpStart;
+	UPROPERTY() FVector UpStop;
+	UPROPERTY() FVector RightDirection;
 
 #pragma endregion
 
