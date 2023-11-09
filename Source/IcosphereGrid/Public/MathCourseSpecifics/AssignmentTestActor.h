@@ -59,10 +59,10 @@ protected:
 	void ExerciseTwoTick(float DeltaTime);
 
 	UFUNCTION()
-	FVector SlerpLocationAroundPoint(FVector Point, FVector DeltaStart, FVector DeltaEnd, float Alpha);
+	FVector SlerpLocationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha);
 
 	UFUNCTION()
-	FRotator SlerpRotationAroundPoint(FVector Point, FVector DeltaStart, FVector DeltaEnd, float Alpha);
+	FRotator SlerpRotationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Two")
 	float MoveDuration = 5.0f;

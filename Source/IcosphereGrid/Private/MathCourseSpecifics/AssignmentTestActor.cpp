@@ -111,13 +111,23 @@ void AAssignmentTestActor::ExerciseTwoTick(float DeltaTime)
 	MovableUnit->SetActorLocation(
 		SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, Alpha)
 	);
+	MovableUnit->SetActorRotation(
+		SlerpRotationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, Alpha)
+	);
+
+	//Debug-Drawing the whole trajectory
+
+	for (float f = 0.0f; f < 100.0f; f += 1.0f)
+	{
+		FVector LineStart = SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, f / 100.0f);
+		FVector LineEnd = SlerpLocationAroundPoint(Grid->GetActorLocation(), LocationStart, LocationStop, (f + 1.0f) / 100.0f);
+		UKismetSystemLibrary::DrawDebugLine(this, LineStart, LineEnd, FLinearColor::Black);
+	}
 
 }
 
 FVector AAssignmentTestActor::SlerpLocationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha)
 {
-	Alpha = FMath::Clamp(Alpha, 0.0f, 1.0f);
-
 	FVector StartDelta = Start - Point;
 	FVector EndDelta = End - Point;
 	float Length = FMath::Lerp(StartDelta.Length(), EndDelta.Length(), Alpha);
@@ -127,7 +137,19 @@ FVector AAssignmentTestActor::SlerpLocationAroundPoint(FVector Point, FVector St
 	return SlerpedLocation;
 }
 
-FRotator AAssignmentTestActor::SlerpRotationAroundPoint(FVector Point, FVector DeltaStart, FVector DeltaEnd, float Alpha)
+FRotator AAssignmentTestActor::SlerpRotationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha)
 {
-	return FRotator();
+	FVector StartDelta = Start - Point;
+	FVector EndDelta = End - Point;
+
+	FVector Forward, Right, Up;
+
+	FVector CurrentLocation = SlerpLocationAroundPoint(Point, Start, End, Alpha);
+	FVector CurrentDelta = CurrentLocation - Point;
+	Up = CurrentDelta.GetSafeNormal();
+	
+	Right = (EndDelta - StartDelta).GetSafeNormal().Cross(Up).GetSafeNormal();
+	Forward = Right.Cross(Up).GetSafeNormal();
+
+	return UKismetMathLibrary::MakeRotationFromAxes(Forward, Right, Up);
 }
