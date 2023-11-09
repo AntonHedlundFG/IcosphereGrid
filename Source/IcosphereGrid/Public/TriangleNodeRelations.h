@@ -6,20 +6,18 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "TriangleNodeRelations.generated.h"
 
-UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
-enum class ETriangleNodeRelations : uint8
+UENUM(BlueprintType, meta = (Bitflags))
+enum class ETriangleNodeRelations
 {
-	TNR_NULL = 0				UMETA(Hidden),
-	TNR_NORTH = 1 << 0			UMETA(DisplayName = "North"),
-	TNR_SOUTH = 1 << 1			UMETA(DisplayName = "South"),
-	TNR_WEST = 1 << 2			UMETA(DisplayName = "West"),
-	TNR_EAST = 1 << 3			UMETA(DisplayName = "East"),
-	TNR_SAMEREGION = 1 << 4		UMETA(DisplayName = "Same Region"),
-	TNR_NEIGHBOUR = 1 << 5		UMETA(DisplayName = "Neighbour"),
-	TNR_HASFREEPATH = 1 << 6	UMETA(DisplayName = "Has Free Path"),
-	TNR_MAX = 1 << 7			UMETA(Hidden)
+	TNR_NULL			UMETA(Hidden),
+	TNR_NORTH			UMETA(DisplayName = "North"),
+	TNR_SOUTH			UMETA(DisplayName = "South"),
+	TNR_WEST			UMETA(DisplayName = "West"),
+	TNR_EAST			UMETA(DisplayName = "East"),
+	TNR_SAMEREGION		UMETA(DisplayName = "Same Region"),
+	TNR_NEIGHBOUR		UMETA(DisplayName = "Neighbour"),
+	TNR_HASFREEPATH		UMETA(DisplayName = "Has Free Path")
 };
-ENUM_CLASS_FLAGS(ETriangleNodeRelations);
 
 class UTriangleNode;
 class AIcosphereGridActor;
@@ -59,5 +57,5 @@ public:
 	//Returns a ETriangleNodeRelations bitmask. If TravelableTileTypes is not specified
 	//TNR_HASFREEPATH flag will always be 0.
 	UFUNCTION(BlueprintCallable, meta = (AutoCreateRefTerm = "TravelableTileTypes"))
-	static uint8 GetNodeRelations(AIcosphereGridActor* Grid, UTriangleNode* TargetNode, UTriangleNode* OtherNode, TArray<ETileType> TravelableTileTypes);
+	static int32 GetNodeRelations(AIcosphereGridActor* Grid, UTriangleNode* TargetNode, UTriangleNode* OtherNode, TArray<ETileType> TravelableTileTypes);
 };

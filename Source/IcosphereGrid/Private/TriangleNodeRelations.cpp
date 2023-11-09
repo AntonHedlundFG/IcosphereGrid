@@ -5,6 +5,7 @@
 #include "TriangleNode.h"
 #include "TriangleLink.h"
 #include "IcosphereGridActor.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 bool UTriangleNodeRelations::IsNorthOf(AIcosphereGridActor* Grid, UTriangleNode* TargetNode, UTriangleNode* OtherNode)
 {
@@ -70,7 +71,7 @@ bool UTriangleNodeRelations::IsInSameRegion(AIcosphereGridActor* Grid, UTriangle
 		{
 			if (Link->GetTarget()->GetTileType() != Type)
 				continue;
-			if (Link->GetTarget() == TargetNode)
+			if (Link->GetTarget() == OtherNode)
 				return true;
 			if (!ClosedNodes.Contains(Link->GetTarget()))
 				OpenNodes.AddUnique(Link->GetTarget());
@@ -102,7 +103,7 @@ bool UTriangleNodeRelations::HasFreePath(AIcosphereGridActor* Grid, UTriangleNod
 		{
 			if (!TravelableTileTypes.Contains(Link->GetTarget()->GetTileType()))
 				continue;
-			if (Link->GetTarget() == TargetNode)
+			if (Link->GetTarget() == OtherNode)
 				return true;
 			if (!ClosedNodes.Contains(Link->GetTarget()))
 				OpenNodes.AddUnique(Link->GetTarget());
@@ -112,36 +113,43 @@ bool UTriangleNodeRelations::HasFreePath(AIcosphereGridActor* Grid, UTriangleNod
 	return false;
 }
 
-uint8 UTriangleNodeRelations::GetNodeRelations(AIcosphereGridActor* Grid, UTriangleNode* TargetNode, UTriangleNode* OtherNode, TArray<ETileType> TravelableTileTypes)
+int32 UTriangleNodeRelations::GetNodeRelations(AIcosphereGridActor* Grid, UTriangleNode* TargetNode, UTriangleNode* OtherNode, TArray<ETileType> TravelableTileTypes)
 {
-	uint8 Relations;
+	int32 Relations = 0;
 	if (IsNorthOf(Grid, TargetNode, OtherNode))
 	{
-		Relations |= (uint8)(ETriangleNodeRelations::TNR_NORTH);
+		UKismetSystemLibrary::PrintString(Grid, FString("North"));
+		Relations |= 1 << (int32)(ETriangleNodeRelations::TNR_NORTH);
 	}
 	if (IsSouthOf(Grid, TargetNode, OtherNode))
 	{
-		Relations |= (uint8)(ETriangleNodeRelations::TNR_SOUTH);
+		UKismetSystemLibrary::PrintString(Grid, FString("South"));
+		Relations |= 1 << (int32)(ETriangleNodeRelations::TNR_SOUTH);
 	}
 	if (IsWestOf(Grid, TargetNode, OtherNode))
 	{
-		Relations |= (uint8)(ETriangleNodeRelations::TNR_WEST);
+		UKismetSystemLibrary::PrintString(Grid, FString("West"));
+		Relations |= 1 << (int32)(ETriangleNodeRelations::TNR_WEST);
 	}
 	if (IsEastOf(Grid, TargetNode, OtherNode))
 	{
-		Relations |= (uint8)(ETriangleNodeRelations::TNR_EAST);
+		UKismetSystemLibrary::PrintString(Grid, FString("East"));
+		Relations |= 1 << (int32)(ETriangleNodeRelations::TNR_EAST);
 	}
 	if (IsInSameRegion(Grid, TargetNode, OtherNode))
 	{
-		Relations |= (uint8)(ETriangleNodeRelations::TNR_SAMEREGION);
+		UKismetSystemLibrary::PrintString(Grid, FString("SameRegion"));
+		Relations |= 1 << (int32)(ETriangleNodeRelations::TNR_SAMEREGION);
 	}
 	if (IsNeighbour(Grid, TargetNode, OtherNode))
 	{
-		Relations |= (uint8)(ETriangleNodeRelations::TNR_NEIGHBOUR);
+		UKismetSystemLibrary::PrintString(Grid, FString("Neighbour"));
+		Relations |= 1 << (int32)(ETriangleNodeRelations::TNR_NEIGHBOUR);
 	}
 	if (HasFreePath(Grid, TargetNode, OtherNode, TravelableTileTypes))
 	{
-		Relations |= (uint8)(ETriangleNodeRelations::TNR_HASFREEPATH);
+		UKismetSystemLibrary::PrintString(Grid, FString("FreePath"));
+		Relations |= 1 << (int32)(ETriangleNodeRelations::TNR_HASFREEPATH);
 	}
-	return uint8();
+	return Relations;
 }
