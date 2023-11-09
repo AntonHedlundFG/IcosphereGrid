@@ -9,6 +9,7 @@
 #include "SphericalMathHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AAssignmentTestActor::AAssignmentTestActor()
@@ -28,6 +29,8 @@ void AAssignmentTestActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	ExerciseTwoTick(DeltaTime);
+
+	ExerciseThreeTick(DeltaTime);
 
 }
 
@@ -82,7 +85,7 @@ void AAssignmentTestActor::ExerciseTwoTest()
 
 	//Set to active so ExerciseTwoTick starts running, with a small delay
 	CurrentMoveTime = -StartDelay;
-	bIsActive = true;
+	bTwoIsActive = true;
 
 	//Debug-Draw the trajectory
 	for (float f = 0.0f; f < 100.0f; f += 1.0f)
@@ -96,7 +99,7 @@ void AAssignmentTestActor::ExerciseTwoTest()
 
 void AAssignmentTestActor::ExerciseTwoTick(float DeltaTime)
 {
-	if (!bIsActive) return;
+	if (!bTwoIsActive) return;
 
 	CurrentMoveTime += DeltaTime;
 	
@@ -106,7 +109,7 @@ void AAssignmentTestActor::ExerciseTwoTick(float DeltaTime)
 	//End activity if we've completed the move
 	if (CurrentMoveTime >= MoveDuration)
 	{
-		bIsActive = false;
+		bTwoIsActive = false;
 		CurrentMoveTime = MoveDuration;
 	}
 
@@ -121,4 +124,35 @@ void AAssignmentTestActor::ExerciseTwoTick(float DeltaTime)
 
 }
 
+void AAssignmentTestActor::ExerciseThreeTick(float DeltaTime)
+{
+	if (!bThreeIsActive) return;
 
+	//Find the PlayerControllers view, to establish the ray that we will use to intersect the grid.
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	int32 X, Y;
+	PC->GetViewportSize(X, Y);
+	FVector2D ViewportSize = FVector2D(X, Y);
+	FVector WorldPosition, WorldDirection;
+	UGameplayStatics::DeprojectScreenToWorld(PC, ViewportSize * 0.5f, WorldPosition, WorldDirection);
+	FVector OutHitPoint;
+
+	//Ask the grid for the node that our camera view is intersecting.
+	UTriangleNode* Node = Grid->GetNodeFromRaycast(WorldPosition, WorldDirection);
+	if (!Node) return;
+
+	//Get the mid point and vertex locations in world space, elevated slightly for visibility
+	//as some meshes are already elevated.
+	FVector NodeMid = Grid->GetActorLocation() + Node->GetCenterPosition() * 1.06f;
+	TArray<FVector> Vertices;
+	for (FVector Vertex : Node->GetVertices())
+		Vertices.Add(Vertex * 1.02f + Grid->GetActorLocation());
+
+	//Draw a debug pyramid displaying the intersected node
+	for (int i = 0; i < Vertices.Num(); i++)
+	{
+		UKismetSystemLibrary::DrawDebugLine(this, NodeMid, Vertices[i], FLinearColor::White, 0.0f, 5.0f);
+		UKismetSystemLibrary::DrawDebugLine(this, Vertices[i], Vertices[(i + 1) % Vertices.Num()], FLinearColor::White, 0.0f, 5.0f);
+	}
+	
+}

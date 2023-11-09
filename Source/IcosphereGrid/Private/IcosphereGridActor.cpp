@@ -6,6 +6,7 @@
 #include "TriangleNode.h"
 #include "TriangleLink.h"
 #include "LevelGeneration.h"
+#include "SphericalMathHelpers.h"
 
 // Sets default values
 AIcosphereGridActor::AIcosphereGridActor()
@@ -166,4 +167,29 @@ int32 AIcosphereGridActor::AddMiddlePoint(TArray<FVector>& Vertices, int32 p1, i
 	}
 	return Index;
 
+}
+
+UTriangleNode* AIcosphereGridActor::GetNodeFromRaycast(FVector RayStart, FVector RayDirection)
+{
+	FVector OutHitPoint;
+	if (!USphericalMathHelpers::GetRaySphereIntersect(RayStart, RayDirection, GetActorLocation(), SphereRadius, OutHitPoint))
+		return nullptr;
+
+	//Use relative location to grid instead, as this is what the Nodes use.
+	OutHitPoint -= GetActorLocation();
+
+	//Find the node which is closest to the hit point
+	float ShortestDistance = MAX_FLT;
+	UTriangleNode* NearestNode = nullptr;
+	for (UTriangleNode* Node : Nodes)
+	{
+		float SqrDistance = (Node->GetCenterPosition() - OutHitPoint).SquaredLength();
+		if (ShortestDistance > SqrDistance)
+		{
+			ShortestDistance = SqrDistance;
+			NearestNode = Node;
+		}
+	}
+	
+	return NearestNode;
 }

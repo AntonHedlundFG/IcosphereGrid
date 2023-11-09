@@ -28,4 +28,7 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable)
 	static FRotator SlerpRotationAroundPoint(FVector Point, FVector Start, FVector End, float Alpha);
+
+	UFUNCTION(BlueprintCallable)
+	static bool GetRaySphereIntersect(FVector RayStart, FVector RayDirection, FVector SphereCenter, float SphereRadius, FVector& OutHitPoint);
 };

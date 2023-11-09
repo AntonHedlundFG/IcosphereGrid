@@ -41,6 +41,12 @@ public:
 	UFUNCTION()
 	TArray<UTriangleNode*> GetNodes() { return Nodes; }
 
+	/** Finds first node that intersects with the described Ray
+	* Returns nullptr if there is no intersection.
+	*/
+	UFUNCTION()
+	UTriangleNode* GetNodeFromRaycast(FVector RayStart, FVector RayDirection);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

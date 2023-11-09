@@ -74,12 +74,26 @@ protected:
 	float CurrentMoveTime = 0.0f;
 
 	UPROPERTY()
-	bool bIsActive = false;
+	bool bTwoIsActive = false;
 
 	//We store these two locations here since we assign them once and then
 	//need to access them in ExerciseTwoTick()
 	UPROPERTY() FVector LocationStart;
 	UPROPERTY() FVector LocationStop;
+
+#pragma endregion
+
+#pragma region Exercise Three
+
+protected:
+	UFUNCTION()
+	void ExerciseThreeTick(float DeltaTime);
+
+	/** When activated, will display a debug pyramid on the node which
+	* is currently in the center of the viewport.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Three")
+	bool bThreeIsActive;
 
 #pragma endregion
 
