@@ -7,6 +7,7 @@
 #include "TriangleLink.h"
 #include "LevelGeneration.h"
 #include "SphericalMathHelpers.h"
+#include "MeteoriteSubsystem.h"
 
 // Sets default values
 AIcosphereGridActor::AIcosphereGridActor()
@@ -26,6 +27,13 @@ void AIcosphereGridActor::BeginPlay()
 	FLevelGenerationSettings Settings;
 	ULevelGeneration::GenerateLevel(this, Settings);
 	GenerateMesh();
+
+	UMeteoriteSubsystem* MSubSystem = GetWorld()->GetSubsystem<UMeteoriteSubsystem>();
+	if (MSubSystem)
+	{
+		MSubSystem->RegisterPlanet(this);
+	}
+
 }
 
 // Called every frame

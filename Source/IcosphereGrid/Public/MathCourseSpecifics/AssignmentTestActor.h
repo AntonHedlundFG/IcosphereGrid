@@ -7,6 +7,7 @@
 #include "AssignmentTestActor.generated.h"
 
 class AIcosphereGridActor;
+class ABouncyMeteorite;
 enum class ETileType : uint8;
 
 UCLASS( hidecategories=(Movement, Input, Collision, Rendering, HLOD, WorldPartition, DataLayers, Replication, Physics, Networking, Actor, LevelInstance, Cooking))
@@ -94,6 +95,22 @@ protected:
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Three")
 	bool bThreeIsActive;
+
+#pragma endregion
+
+#pragma region Exercise Four
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Exercise Four")
+	void SpawnMeteorite();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Four")
+	int SpawnsPerClick = 50;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Four")
+	float MeteoriteSpeed = 50.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exercise Four")
+	TSubclassOf<ABouncyMeteorite> MeteoriteClass;
 
 #pragma endregion
 

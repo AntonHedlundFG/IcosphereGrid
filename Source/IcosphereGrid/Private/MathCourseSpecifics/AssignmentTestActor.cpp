@@ -10,6 +10,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "BouncyMeteorite.h"
 
 
 AAssignmentTestActor::AAssignmentTestActor()
@@ -155,4 +156,33 @@ void AAssignmentTestActor::ExerciseThreeTick(float DeltaTime)
 		UKismetSystemLibrary::DrawDebugLine(this, Vertices[i], Vertices[(i + 1) % Vertices.Num()], FLinearColor::White, 0.0f, 5.0f);
 	}
 	
+}
+
+void AAssignmentTestActor::SpawnMeteorite()
+{
+	for (int i = 0; i < SpawnsPerClick; i++)
+	{
+		//Spawn the meteorite 10-100 percent of the planets radius above the surface.
+		FVector SpawnDirection = UKismetMathLibrary::RandomUnitVector();
+		float SpawnDistance = Grid->GetRadius() * FMath::RandRange(1.1f, 2.0f);
+		const FVector SpawnLocation = Grid->GetActorLocation() + SpawnDirection * SpawnDistance;
+		FActorSpawnParameters SpawnParams;
+		ABouncyMeteorite* SpawnedMeteorite = GetWorld()->SpawnActor<ABouncyMeteorite>(
+			MeteoriteClass,
+			SpawnLocation,
+			FRotator::ZeroRotator,
+			SpawnParams);
+
+
+		//Aim towards the centre of the planet, and then offset the direction randomly.
+		//Randomly set the velocity, as well as the mass.
+		FVector AimDirection = -SpawnDirection;
+		AimDirection += FVector(FMath::RandRange(-0.3f, 0.6f),
+			FMath::RandRange(-0.6f, 0.6f),
+			FMath::RandRange(-0.6f, 0.6f));
+		FVector StartingVelocity = AimDirection * MeteoriteSpeed * FMath::RandRange(0.5f, 1.5f);
+		SpawnedMeteorite->SetVelocity(StartingVelocity);
+		SpawnedMeteorite->SetMass(SpawnedMeteorite->GetMass() * FMath::RandRange(0.5f, 1.5f));
+	}
+
 }

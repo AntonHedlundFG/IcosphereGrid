@@ -54,3 +54,35 @@ bool USphericalMathHelpers::GetRaySphereIntersect(FVector RayStart, FVector RayD
 
     return true;
 }
+
+bool USphericalMathHelpers::ClosestAABBIntersectPoint(FVector BoxCenter, FVector HalfExtents, FVector SphereCenter, float SphereRadius, FVector& ClosestPoint)
+{
+	ClosestPoint.X = FMath::Clamp(ClosestPoint.X, BoxCenter.X - HalfExtents.X, BoxCenter.X + HalfExtents.X);
+	ClosestPoint.Y = FMath::Clamp(ClosestPoint.Y, BoxCenter.Y - HalfExtents.Y, BoxCenter.Y + HalfExtents.Y);
+	ClosestPoint.Z = FMath::Clamp(ClosestPoint.Z, BoxCenter.Z - HalfExtents.Z, BoxCenter.Z + HalfExtents.Z);
+
+	return FVector::DistSquared(ClosestPoint, SphereCenter) <= SphereRadius * SphereRadius;
+}
+
+bool USphericalMathHelpers::ContainedWithin(float Value, float Min, float Max)
+{
+	return Value >= Min && Value <= Max;
+}
+
+bool USphericalMathHelpers::ContainedWithinExtents(float Value, float Center, float HalfExtents)
+{
+	return Value >= Center - HalfExtents && Value <= Center + HalfExtents;
+}
+
+float USphericalMathHelpers::CalcGravitationalForce(float MassA, float MassB, float Radius)
+{
+	const float G = 6.67384e-11; //Newton's gravitational constant
+	return G * MassA * MassB / (Radius * Radius);
+}
+
+float USphericalMathHelpers::CalcGravitationalForceSqr(float MassA, float MassB, float SqrRadius)
+{
+	//const float G = 6.67384e-11; //Newton's gravitational constant
+	const float G = 1000.0f; //Screw Newton and his tiny numbers
+	return G * MassA * MassB / SqrRadius;
+}

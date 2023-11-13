@@ -21,7 +21,13 @@ public:
 	AIcosphereGridActor();
 
 	UFUNCTION()
+	float GetMass() const { return Mass; }
+
+	UFUNCTION()
 	float GetRadius() const { return SphereRadius; }
+
+	UFUNCTION()
+	float GetRadiusSqr() const { return SphereRadius * SphereRadius; }
 	
 	UFUNCTION()
 	float GetMountainHeight() const { return MountainHeight; }
@@ -71,6 +77,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	int MinRegionSize = 4;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0f))
+	float Mass = 100000.0f;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UProceduralMeshComponent> ProceduralMeshComponent;

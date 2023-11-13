@@ -31,4 +31,22 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static bool GetRaySphereIntersect(FVector RayStart, FVector RayDirection, FVector SphereCenter, float SphereRadius, FVector& OutHitPoint);
+
+	/** Returns true if there is an intersection, and either way, gives the closest point on
+	* the AABB from the Sphere.
+	*/
+	UFUNCTION(BlueprintCallable)
+	static bool ClosestAABBIntersectPoint(FVector BoxCenter, FVector HalfExtents, FVector SphereCenter, float SphereRadius, FVector& ClosestPoint);
+
+	UFUNCTION()
+	static bool ContainedWithin(float Value, float Min, float Max);
+
+	UFUNCTION()
+	static bool ContainedWithinExtents(float Value, float Center, float HalfExtents);
+
+	UFUNCTION()
+	static float CalcGravitationalForce(float MassA, float MassB, float Radius);
+
+	UFUNCTION()
+	static float CalcGravitationalForceSqr(float MassA, float MassB, float SqrRadius);
 };
