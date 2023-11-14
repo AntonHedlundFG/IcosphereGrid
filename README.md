@@ -68,3 +68,18 @@ Finally, this gives us that the ray intersects with the sphere at $O + (t_{ca} -
 ![RaySphereIntersect](https://www.scratchapixel.com/images/ray-simple-shapes/raysphereisect1.png?)
 
 Once this function is created, we use the PlayerController's Viewport to find the Ray that describes the center of the player's screen, and use it to find the node on the grid which contains the nearest intersection, and draw a simple debugging visualization there.
+
+
+### Assignment 4: Collision
+
+![AssignmentFour](/Images/ExerciseFour.gif)
+
+For this assignment I made a simple physics & collision system, using the Icosphere as a planet and many new BouncyMeteorite actors ([.h](/Source/IcosphereGrid/Public/BouncyMeteorite.h) and [.cpp](/Source/IcosphereGrid/Private/BouncyMeteorite.cpp)).
+
+The movement, and collision checking and handling is handled by a Subsystem. ([.h](/Source/IcosphereGrid/Public/MeteoriteSubsystem.h) and [.cpp](/Source/IcosphereGrid/Private/MeteoriteSubsystem.cpp))
+
+The movement and gravity is managed simply by the subsystem as each BouncyMeteorite has a mass and a velocity. We calculate the gravitational force not just between meteorite and planet, but also between all meteorites. 
+
+For the collision handling, calculating the collision normal is very easy between spheres; it's simply the direction between their centers. We project the _relative_ velocity of the two spheres onto the collision normal and multiply it by their combined masses. This gives us a scalar which we can multiply by the normal to determine the force we need to apply to each of them. In addition to the force application, we also displace the two spheres so that they no longer overlap. The displacement is split up between the two spheres inversely to their respective mass.
+
+No force is applied to the planet, as I want it to remain perfectly stationary.
