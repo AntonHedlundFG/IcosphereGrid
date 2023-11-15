@@ -83,3 +83,11 @@ The movement and gravity is managed simply by the subsystem as each BouncyMeteor
 For the collision handling, calculating the collision normal is very easy between spheres; it's simply the direction between their centers. We project the _relative_ velocity of the two spheres onto the collision normal and multiply it by their combined masses. This gives us a scalar which we can multiply by the normal to determine the force we need to apply to each of them. In addition to the force application, we also displace the two spheres so that they no longer overlap. The displacement is split up between the two spheres inversely to their respective mass.
 
 No force is applied to the planet, as I want it to remain perfectly stationary.
+
+### Assignment 5: Noise
+
+![AssignmentFive](/Images/AssignmentFive.png)
+
+For this assignment I added Perlin noise to the Icosphere generation. [Code](Source/IcosphereGrid/Private/IcosphereGridActor.cpp#L182-L211)
+
+The way it works, simply put, is that every vertex on the sphere that is only used to build Tiles of a valid TileType (land, mountain, not water or hole), has its height modified by perlin noise. This creates elevation on landmasses, but keeps oceans and holes flat. 
