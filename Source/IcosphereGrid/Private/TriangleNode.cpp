@@ -14,6 +14,13 @@ void UTriangleNode::SetVertices(AIcosphereGridActor* ParentGrid, const FVector& 
 	TileType = ETileType::TT_Hole;
 }
 
+void UTriangleNode::UpdateVertices(TArray<FVector> NewVertices)
+{
+	if (NewVertices.Num() != TriangleVertices.Num()) return;
+
+	TriangleVertices = NewVertices;
+}
+
 FVector UTriangleNode::GetCenterPosition() const
 {
 	if (TriangleVertices.Num() == 0)
@@ -49,11 +56,11 @@ void UTriangleNode::AddNodeToMesh(TArray<FVector>& Vertices, TArray<int32>& Tria
 
 void UTriangleNode::AddGrassToMesh(TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray<FVector>& Normals, TArray<FLinearColor>& Colors)
 {
-	for (FVector vertex : TriangleVertices)
+	for (FVector Vertex : TriangleVertices)
 	{
 		Triangles.Add(Vertices.Num());
-		Vertices.Add(vertex);
-		Normals.Add(vertex.GetSafeNormal(0.01f));
+		Vertices.Add(Vertex);
+		Normals.Add(Vertex.GetSafeNormal(0.01f));
 		Colors.Add(UTriangleNode::GetColorPerType(ETileType::TT_Grass));
 	}
 }

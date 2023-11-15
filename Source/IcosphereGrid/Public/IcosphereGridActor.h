@@ -10,6 +10,7 @@ class UProceduralMeshComponent;
 class UTriangleNode;
 class UTriangleLink;
 class UMaterial;
+enum class ETileType : uint8;
 
 UCLASS()
 class ICOSPHEREGRID_API AIcosphereGridActor : public AActor
@@ -81,6 +82,12 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0f))
 	float Mass = 100000.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<ETileType> NoisableTileTypes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	float NoiseMultiplier = 0.1f;
+
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UProceduralMeshComponent> ProceduralMeshComponent;
 
@@ -107,6 +114,9 @@ protected:
 	//If there's already a vertex at that point, simply return its index instead.
 	UFUNCTION()
 	int32 AddMiddlePoint(TArray<FVector>& Vertices, int32 p1, int32 p2);
+
+	UFUNCTION()
+	void AddNoise();
 
 public:	
 	// Called every frame

@@ -32,6 +32,9 @@ public:
 	void SetVertices(AIcosphereGridActor* ParentGrid, const FVector& VertexOne, const FVector& VertexTwo, const FVector& VertexThree);
 
 	UFUNCTION()
+	void UpdateVertices(TArray<FVector> NewVertices);
+
+	UFUNCTION()
 	FVector GetCenterPosition() const;
 
 	UFUNCTION()

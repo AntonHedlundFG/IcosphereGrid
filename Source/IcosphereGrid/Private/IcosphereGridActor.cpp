@@ -8,6 +8,7 @@
 #include "LevelGeneration.h"
 #include "SphericalMathHelpers.h"
 #include "MeteoriteSubsystem.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AIcosphereGridActor::AIcosphereGridActor()
@@ -26,6 +27,7 @@ void AIcosphereGridActor::BeginPlay()
 	GenerateIcosphereGrid(Subdivisions, SphereRadius);
 	FLevelGenerationSettings Settings;
 	ULevelGeneration::GenerateLevel(this, Settings);
+	AddNoise();
 	GenerateMesh();
 
 	UMeteoriteSubsystem* MSubSystem = GetWorld()->GetSubsystem<UMeteoriteSubsystem>();
@@ -175,6 +177,37 @@ int32 AIcosphereGridActor::AddMiddlePoint(TArray<FVector>& Vertices, int32 p1, i
 	}
 	return Index;
 
+}
+
+void AIcosphereGridActor::AddNoise()
+{
+	TMap<FVector, bool> VertexShouldNoise;
+	for (UTriangleNode* Node : Nodes)
+	{
+		for (FVector Vertex : Node->GetVertices())
+		{
+			if (!VertexShouldNoise.Contains(Vertex))
+				VertexShouldNoise.Add(Vertex, true);
+
+			if (!NoisableTileTypes.Contains(Node->GetTileType()))
+			{
+				VertexShouldNoise[Vertex] = false;
+			}
+		}
+	}
+
+	for (UTriangleNode* Node : Nodes)
+	{
+		auto Vertices = Node->GetVertices();
+		for (FVector& Vertex : Vertices)
+		{
+			if (VertexShouldNoise[Vertex])
+			{
+				Vertex *= (1.0f + FMath::PerlinNoise3D(Vertex) * NoiseMultiplier);
+			}
+		}
+		Node->UpdateVertices(Vertices);
+	}
 }
 
 UTriangleNode* AIcosphereGridActor::GetNodeFromRaycast(FVector RayStart, FVector RayDirection)
